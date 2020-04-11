@@ -16,7 +16,7 @@ import postcss from 'rollup-plugin-postcss';
 import gzipSize from 'gzip-size';
 import brotliSize from 'brotli-size';
 import prettyBytes from 'pretty-bytes';
-import shebangPlugin from 'rollup-plugin-preserve-shebang';
+import { preserveShebangs } from 'rollup-plugin-preserve-shebangs';
 import typescript from 'rollup-plugin-typescript2';
 import json from 'rollup-plugin-json';
 import flow from './lib/flow-plugin';
@@ -443,8 +443,6 @@ function createConfig(options, entry, format, writeMeta) {
 
 	if (nameCache === bareNameCache) nameCache = null;
 
-	let shebang;
-
 	let config = {
 		inputOptions: {
 			input: entry,
@@ -529,28 +527,6 @@ function createConfig(options, entry, format, writeMeta) {
 							],
 						],
 					}),
-					{
-						// Custom plugin that removes shebang from code because newer
-						// versions of bublé bundle their own private version of `acorn`
-						// and I don't know a way to patch in the option `allowHashBang`
-						// to acorn.
-						// See: https://github.com/Rich-Harris/buble/pull/165
-						transform(code) {
-							let reg = /^#!(.*)/;
-							let match = code.match(reg);
-
-							if (match !== null) {
-								shebang = '#!' + match[0];
-							}
-
-							code = code.replace(reg, '');
-
-							return {
-								code,
-								map: null,
-							};
-						},
-					},
 					buble({
 						exclude: 'node_modules/**',
 						jsx: options.jsx || 'h',
@@ -613,9 +589,7 @@ function createConfig(options, entry, format, writeMeta) {
 							config._code = code;
 						},
 					},
-					shebangPlugin({
-						shebang,
-					}),
+					preserveShebangs(),
 				)
 				.filter(Boolean),
 		},
