@@ -221,24 +221,24 @@ export default async function microbundle(inputOptions) {
 	const declarations = [];
 	let out = await series(
 		steps.map(
-			({ inputOptions, outputOptions, exportDeclarations }) => async () => {
+			({ inputOptions, outputOptions, tsCompilerOptions }) => async () => {
 				inputOptions.cache = cache;
 				let bundle = await rollup(inputOptions);
 				cache = bundle;
 				const options = await bundle.write(outputOptions);
 
-				if (exportDeclarations) {
+				if (tsCompilerOptions) {
 					const config = {
 						input: inputOptions.input,
 						output: dirname(outputOptions.file),
-						options: exportDeclarations,
+						options: tsCompilerOptions,
 					};
 					if (
-						declarations.find(
+						!declarations.find(
 							declaration =>
 								declaration.input === config.input &&
 								declaration.output === config.output,
-						) === undefined
+						)
 					) {
 						declarations.push(config);
 					}
@@ -492,10 +492,15 @@ function createConfig(options, entry, format, writeMeta) {
 			compilerOptions = JSON.parse(
 				fs.readFileSync(resolve(process.cwd(), 'tsconfig.json')),
 			).compilerOptions;
+
+			if (!compilerOptions || typeof compilerOptions !== 'object') {
+				console.warn(
+					'No typescript configuration (tsconfig.json) has no "compilerOptions" property.',
+				);
+				compilerOptions = {};
+			}
 		} catch (e) {
-			console.warn(
-				'No typescript configuration (tsconfig.json) found, or property "compilerOptions" missing.',
-			);
+			console.warn('No typescript configuration (tsconfig.json) found');
 			compilerOptions = {};
 		}
 
@@ -660,7 +665,7 @@ function createConfig(options, entry, format, writeMeta) {
 			),
 		},
 
-		exportDeclarations: useTypescript ? compilerOptions : null,
+		tsCompilerOptions: useTypescript ? compilerOptions : null,
 	};
 
 	return config;
