@@ -479,8 +479,8 @@ function createConfig(options, entry, format, writeMeta) {
 							}),
 						),
 					nodeResolve({
-						module: true,
-						jsnext: true,
+						preferBuiltins: true,
+						mainFields: ['module', 'jsnext:main', 'main'],
 						browser: options.target !== 'node',
 					}),
 					commonjs({
