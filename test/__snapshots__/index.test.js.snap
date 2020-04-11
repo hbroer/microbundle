@@ -27,17 +27,17 @@ Build \\"aliasMapping\\" to dist:
 `;
 
 exports[`fixtures alias 2`] = `
-"console.log(\\"DEBUG should be true: \\",!1);
+"console.log(\\"DEBUG should be true: \\",!0);
 "
 `;
 
 exports[`fixtures alias 3`] = `
-"console.log(\\"DEBUG should be true: \\",!1);
+"console.log(\\"DEBUG should be true: \\",!0);
 "
 `;
 
 exports[`fixtures alias 4`] = `
-"!function(e){\\"function\\"==typeof define&&define.amd?define(e):e()}((function(){console.log(\\"DEBUG should be true: \\",!1)}));
+"!function(e){\\"function\\"==typeof define&&define.amd?define(e):e()}((function(){console.log(\\"DEBUG should be true: \\",!0)}));
 "
 `;
 

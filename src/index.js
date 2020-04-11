@@ -543,11 +543,10 @@ function createConfig(options, entry, format, writeMeta) {
 						extract: !!writeMeta,
 					}),
 					Object.keys(moduleAliases).length > 0 &&
-						alias(
-							Object.assign({}, moduleAliases, {
-								resolve: EXTENSIONS,
-							}),
-						),
+						alias({
+							entries: moduleAliases,
+							resolve: EXTENSIONS, // pretty sure this does has no effects
+						}),
 					nodeResolve({
 						preferBuiltins: true,
 						mainFields: ['module', 'jsnext:main', 'main'],
