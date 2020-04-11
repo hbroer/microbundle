@@ -218,15 +218,56 @@ export default async function microbundle(inputOptions) {
 	}
 
 	let cache;
+	const declarations = [];
 	let out = await series(
-		steps.map(({ inputOptions, outputOptions }) => async () => {
-			inputOptions.cache = cache;
-			let bundle = await rollup(inputOptions);
-			cache = bundle;
-			const options = await bundle.write(outputOptions);
-			return await getSizeInfo(options.output[0].code, outputOptions.file);
-		}),
+		steps.map(
+			({ inputOptions, outputOptions, exportDeclarations }) => async () => {
+				inputOptions.cache = cache;
+				let bundle = await rollup(inputOptions);
+				cache = bundle;
+				const options = await bundle.write(outputOptions);
+
+				if (exportDeclarations) {
+					const config = {
+						input: inputOptions.input,
+						output: dirname(outputOptions.file),
+						options: exportDeclarations,
+					};
+					if (
+						declarations.find(
+							declaration =>
+								declaration.input === config.input &&
+								declaration.output === config.output,
+						) === undefined
+					) {
+						declarations.push(config);
+					}
+				}
+
+				return await getSizeInfo(options.output[0].code, outputOptions.file);
+			},
+		),
 	);
+
+	let ts;
+	for (const declaration of declarations) {
+		if (!ts) {
+			ts = require('typescript');
+		}
+		const compilerOptions = {
+			...declaration.options,
+			declaration: true,
+			emitDeclarationOnly: true,
+			declarationDir: declaration.output,
+		};
+		const host = ts.createCompilerHost(compilerOptions);
+		const program = ts.createProgram(
+			[declaration.input],
+			compilerOptions,
+			host,
+		);
+		program.emit();
+	}
 
 	return (
 		chalk.blue(
@@ -618,6 +659,8 @@ function createConfig(options, entry, format, writeMeta) {
 					cjsMain,
 			),
 		},
+
+		exportDeclarations: useTypescript ? compilerOptions : null,
 	};
 
 	return config;
