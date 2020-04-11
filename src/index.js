@@ -223,8 +223,8 @@ export default async function microbundle(inputOptions) {
 			inputOptions.cache = cache;
 			let bundle = await rollup(inputOptions);
 			cache = bundle;
-			const { code } = await bundle.write(outputOptions);
-			return await getSizeInfo(code, outputOptions.file);
+			const options = await bundle.write(outputOptions);
+			return await getSizeInfo(options.output[0].code, outputOptions.file);
 		}),
 	);
 
@@ -624,7 +624,6 @@ function createConfig(options, entry, format, writeMeta) {
 			paths: outputAliases,
 			globals,
 			strict: options.strict === true,
-			legacy: true,
 			freeze: false,
 			esModule: false,
 			sourcemap: options.sourcemap,
