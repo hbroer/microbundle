@@ -1,10 +1,11 @@
 import chalk from 'chalk';
 import { stderr } from './utils';
 
-export default function(err) {
+export default function (err) {
 	const error = err.error || err;
-	const description = `${error.name ? error.name + ': ' : ''}${error.message ||
-		error}`;
+	const description = `${error.name ? error.name + ': ' : ''}${
+		error.message || error
+	}`;
 	const message = error.plugin
 		? `(${error.plugin} plugin) ${description}`
 		: description;

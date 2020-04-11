@@ -24,7 +24,7 @@ import logError from './log-error';
 import { readFile, isDir, isFile, stdout, stderr } from './utils';
 import camelCase from 'camelcase';
 
-const removeScope = name => name.replace(/^@.*\//, '');
+const removeScope = (name) => name.replace(/^@.*\//, '');
 
 // Convert booleans and int define= values to literals.
 // This is more intuitive than `microbundle --define A=1` producing A="1".
@@ -72,7 +72,7 @@ function normalizeMinifyOptions(minifyOptions) {
 // Parses values of the form "$=jQuery,React=react" into key-value object pairs.
 const parseMappingArgument = (globalStrings, processValue) => {
 	const globals = {};
-	globalStrings.split(',').forEach(globalString => {
+	globalStrings.split(',').forEach((globalString) => {
 		let [key, value] = globalString.split('=');
 		if (processValue) {
 			const r = processValue(value, key);
@@ -187,7 +187,7 @@ export default async function microbundle(inputOptions) {
 					)}:`,
 				),
 			);
-			steps.map(options => {
+			steps.map((options) => {
 				watch(
 					Object.assign(
 						{
@@ -196,7 +196,7 @@ export default async function microbundle(inputOptions) {
 						},
 						options.inputOptions,
 					),
-				).on('event', e => {
+				).on('event', (e) => {
 					if (e.code === 'FATAL') {
 						return reject(e.error);
 					} else if (e.code === 'ERROR') {
@@ -204,7 +204,7 @@ export default async function microbundle(inputOptions) {
 					}
 					if (e.code === 'END') {
 						getSizeInfo(options._code, options.outputOptions.file).then(
-							text => {
+							(text) => {
 								stdout(`Wrote ${text.trim()}`);
 							},
 						);
@@ -230,8 +230,9 @@ export default async function microbundle(inputOptions) {
 
 	return (
 		chalk.blue(
-			`Build "${options.name}" to ${relative(cwd, dirname(options.output)) ||
-				'.'}:`,
+			`Build "${options.name}" to ${
+				relative(cwd, dirname(options.output)) || '.'
+			}:`,
 		) +
 		'\n   ' +
 		out.join('\n   ')
@@ -265,7 +266,7 @@ async function getConfigFromPkgJson(cwd) {
 	}
 }
 
-const safeVariableName = name =>
+const safeVariableName = (name) =>
 	camelCase(
 		removeScope(name)
 			.toLowerCase()
@@ -312,8 +313,8 @@ async function getInput({ entries, cwd, source, module }) {
 						(await jsOrTs(cwd, 'index')) ||
 						module,
 		)
-		.map(file => glob(file))
-		.forEach(file => input.push(...file));
+		.map((file) => glob(file))
+		.forEach((file) => input.push(...file));
 
 	return input;
 }
@@ -327,13 +328,15 @@ async function getOutput({ cwd, output, pkgMain, pkgName }) {
 }
 
 async function getEntries({ input, cwd }) {
-	let entries = (await map([].concat(input), async file => {
-		file = resolve(cwd, file);
-		if (await isDir(file)) {
-			file = resolve(file, 'index.js');
-		}
-		return file;
-	})).filter((item, i, arr) => arr.indexOf(item) === i);
+	let entries = (
+		await map([].concat(input), async (file) => {
+			file = resolve(cwd, file);
+			if (await isDir(file)) {
+				file = resolve(file, 'index.js');
+			}
+			return file;
+		})
+	).filter((item, i, arr) => arr.indexOf(item) === i);
 	return entries;
 }
 
@@ -341,7 +344,7 @@ function createConfig(options, entry, format, writeMeta) {
 	let { pkg } = options;
 
 	let external = ['dns', 'fs', 'path', 'url'].concat(
-		options.entries.filter(e => e !== entry),
+		options.entries.filter((e) => e !== entry),
 	);
 
 	let outputAliases = {};
@@ -420,7 +423,7 @@ function createConfig(options, entry, format, writeMeta) {
 
 	const externalPredicate = new RegExp(`^(${external.join('|')})($|/)`);
 	const externalTest =
-		external.length === 0 ? () => false : id => externalPredicate.test(id);
+		external.length === 0 ? () => false : (id) => externalPredicate.test(id);
 
 	function loadNameCache() {
 		try {
@@ -446,7 +449,7 @@ function createConfig(options, entry, format, writeMeta) {
 	let config = {
 		inputOptions: {
 			input: entry,
-			external: id => {
+			external: (id) => {
 				if (id === 'babel-plugin-transform-async-to-promises/helpers') {
 					return false;
 				}

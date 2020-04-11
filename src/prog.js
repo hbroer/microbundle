@@ -1,10 +1,10 @@
 import sade from 'sade';
 let { version } = require('../package');
 
-const toArray = val => (Array.isArray(val) ? val : val == null ? [] : [val]);
+const toArray = (val) => (Array.isArray(val) ? val : val == null ? [] : [val]);
 
-export default handler => {
-	const cmd = type => (str, opts) => {
+export default (handler) => {
+	const cmd = (type) => (str, opts) => {
 		opts.watch = opts.watch || type === 'watch';
 		opts.compress =
 			opts.compress != null ? opts.compress : opts.target !== 'node';
@@ -51,7 +51,7 @@ export default handler => {
 		.action(cmd('watch'));
 
 	// Parse argv; add extra aliases
-	return argv =>
+	return (argv) =>
 		prog.parse(argv, {
 			alias: {
 				o: ['output', 'd'],
